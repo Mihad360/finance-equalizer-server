@@ -24,6 +24,7 @@ async function run() {
 
     // Finance Collection Setup
     const financeCollection = client.db("financeDB").collection("finances");
+    const budgetCollection = client.db("financeDB").collection("budgets");
 
     // Add Finance
     app.post("/finance", async (req, res) => {
@@ -32,9 +33,20 @@ async function run() {
       res.send(result);
     });
 
+    app.post("/budget", async (req, res) => {
+      const budget = req.body;
+      const result = await budgetCollection.insertOne(budget);
+      res.send(result);
+    });
+
     // Get All Finances
     app.get("/finance", async (req, res) => {
       const result = await financeCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/budgets", async (req, res) => {
+      const result = await budgetCollection.find().toArray();
       res.send(result);
     });
 
@@ -72,6 +84,7 @@ async function run() {
       const result = await financeCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
+    
 
     app.get("/finance-stats", async (req, res) => {
       try {
@@ -79,7 +92,6 @@ async function run() {
           .aggregate([
             {
               $facet: {
-                // Total expense, income, and transaction count
                 totalStats: [
                   {
                     $group: {
